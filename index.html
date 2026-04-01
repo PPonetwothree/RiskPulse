@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiskPulse Intelligence v1.0 — Geopolitical Analysis System</title>
+    <meta name="description" content="Multi-agent geopolitical intelligence dashboard with real-time conflict risk analysis.">
+    <link rel="stylesheet" href="static/css/win98.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ MAIN WINDOW -->
+<div id="main-window">
+
+    <!-- ── Title Bar ───────────────────────────────────────────── -->
+    <div id="title-bar">
+        <span class="title-icon">🛡</span>
+        <span class="title-text">RISKPULSE INTELLIGENCE v1.0 — GEOPOLITICAL ANALYSIS SYSTEM</span>
+        <div id="win-controls">
+            <button class="win-btn" id="btn-minimize" title="Minimize">_</button>
+            <button class="win-btn" id="btn-maximize" title="Maximize / Restore">□</button>
+            <button class="win-btn" id="btn-close" title="Close">✕</button>
+        </div>
+    </div>
+
+    <!-- ── Menu Bar ────────────────────────────────────────────── -->
+    <div id="menu-bar">
+        <span class="menu-item" id="menu-file" tabindex="0">File</span>
+        <span class="menu-item" id="menu-view" tabindex="0">View</span>
+        <span class="menu-item" id="menu-agents" tabindex="0">Agents</span>
+        <span class="menu-item" id="menu-reports" tabindex="0">Reports</span>
+        <span class="menu-item" id="menu-help" tabindex="0">Help</span>
+    </div>
+
+    <!-- ── Dropdown Menus ─────────────────────────────────────── -->
+    <div class="dropdown" id="dd-file">
+        <div class="dd-item" id="dd-export-log">📄 Export Event Log</div>
+        <div class="dd-item" id="dd-export-alerts">📋 Export Alerts</div>
+        <div class="dd-sep"></div>
+        <div class="dd-item" id="dd-clear-feed">🗑 Clear Event Feed</div>
+        <div class="dd-sep"></div>
+        <div class="dd-item" id="dd-exit">✕ Close Dashboard</div>
+    </div>
+    <div class="dropdown" id="dd-view">
+        <div class="dd-item dd-check" id="dd-toggle-feed">✔ Event Feed</div>
+        <div class="dd-item dd-check" id="dd-toggle-sentiment">✔ Sentiment Analysis</div>
+        <div class="dd-item dd-check" id="dd-toggle-alerts">✔ Active Alerts</div>
+        <div class="dd-item dd-check" id="dd-toggle-forecast">✔ Forecasts</div>
+        <div class="dd-sep"></div>
+        <div class="dd-item" id="dd-autoscroll">✔ Auto-Scroll Feed</div>
+    </div>
+    <div class="dropdown" id="dd-agents">
+        <div class="dd-item" id="dd-start-all">▶ Start All Agents</div>
+        <div class="dd-item" id="dd-stop-all">■ Stop All Agents</div>
+        <div class="dd-item" id="dd-restart-all">⟳ Restart All Agents</div>
+        <div class="dd-sep"></div>
+        <div class="dd-item" id="dd-restart-collector">⟳ Restart COLLECTOR-01</div>
+        <div class="dd-item" id="dd-restart-analyzer">⟳ Restart ANALYZER-01</div>
+        <div class="dd-item" id="dd-restart-forecaster">⟳ Restart FORECASTER-01</div>
+        <div class="dd-item" id="dd-restart-alertmgr">⟳ Restart ALERTMGR-01</div>
+    </div>
+    <div class="dropdown" id="dd-reports">
+        <div class="dd-item" id="dd-show-stats">📊 Agent Statistics</div>
+        <div class="dd-item" id="dd-show-risk">🌍 Risk Summary</div>
+        <div class="dd-item" id="dd-show-history">📂 Alert History</div>
+    </div>
+    <div class="dropdown" id="dd-help">
+        <div class="dd-item" id="dd-about">ℹ About RiskPulse</div>
+        <div class="dd-item" id="dd-shortcuts">⌨ Keyboard Shortcuts</div>
+    </div>
+
+    <!-- ── Modal Overlay ──────────────────────────────────────── -->
+    <div id="modal-overlay" style="display:none;">
+        <div id="modal-box">
+            <div id="modal-titlebar">
+                <span id="modal-title">DIALOG</span>
+                <button class="win-btn" id="modal-close-btn">✕</button>
+            </div>
+            <div id="modal-body"></div>
+            <div id="modal-footer">
+                <button class="toolbar-btn" id="modal-ok">OK</button>
+                <button class="toolbar-btn" id="modal-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Toolbar ─────────────────────────────────────────────── -->
+    <div id="toolbar">
+        <button class="toolbar-btn" id="btn-refresh" data-tip="Reload dashboard state">⟳ REFRESH</button>
+        <button class="toolbar-btn" id="btn-pause" data-tip="Pause feed display">⏸ PAUSE</button>
+        <button class="toolbar-btn" id="btn-resume" data-tip="Resume feed display" style="display:none">▶ RESUME</button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" id="btn-clear-alerts" data-tip="Clear alert history">🗑 CLR ALERTS</button>
+        <button class="toolbar-btn" id="btn-force-collect" data-tip="Force collection cycle now">⚡ FORCE COLLECT</button>
+        <div class="toolbar-sep"></div>
+        <span class="toolbar-label" id="tb-mode">MODE: SIM</span>
+        <div class="toolbar-sep"></div>
+        <span class="toolbar-label" id="tb-events-total">EVENTS: 0</span>
+        <span class="toolbar-label" id="tb-alerts-count">ALERTS: 0</span>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ CONTENT GRID -->
+    <div id="content">
+
+        <!-- ╔═══════════════════════════════════════════════════════
+             ║ PANEL 1: LIVE EVENT FEED (COLLECTOR)
+             ╚═══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-collector">
+            <div class="panel-header">
+                <span class="panel-title">// LIVE EVENT FEED</span>
+                <span class="panel-agent-label">[AGENT: COLLECTOR-01]</span>
+                <span class="panel-status-badge idle" id="status-collector">○ IDLE</span>
+            </div>
+            <div class="panel-body" id="feed-body">
+                <div class="t-line dim"><span class="t-msg">RISKPULSE INTELLIGENCE SYSTEM v1.0</span></div>
+                <div class="t-line dim"><span class="t-msg">INITIALIZING EVENT COLLECTOR...</span></div>
+                <div class="t-line dim"><span class="t-msg">CONNECTING TO DATA SOURCES...</span></div>
+                <div class="t-line dim"><span class="t-msg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span></div>
+                <div class="t-line">
+                    <span class="t-time">[SYS]</span>
+                    <span class="t-source src-system">SYSTEM</span>
+                    <span class="t-msg">AWAITING FIRST COLLECTION CYCLE...</span>
+                    <span class="cursor">█</span>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span>GDELT: <span class="metric" id="metric-gdelt">--</span></span>
+                <span>ACLED: <span class="metric" id="metric-acled">--</span></span>
+                <span>REDDIT: <span class="metric" id="metric-reddit">--</span></span>
+                <span style="margin-left:auto">TOTAL: <span class="metric" id="metric-total">0</span></span>
+            </div>
+        </div>
+
+        <!-- ╔═══════════════════════════════════════════════════════
+             ║ PANEL 2: SENTIMENT ANALYSIS (ANALYZER)
+             ╚═══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-analyzer">
+            <div class="panel-header">
+                <span class="panel-title">// SENTIMENT ANALYSIS</span>
+                <span class="panel-agent-label">[AGENT: ANALYZER-01]</span>
+                <span class="panel-status-badge idle" id="status-analyzer">○ IDLE</span>
+            </div>
+            <div class="panel-body" id="sentiment-body" style="padding:0; overflow-x:hidden;">
+                <table class="sentiment-table" id="sentiment-table">
+                    <thead>
+                        <tr>
+                            <th>CC</th>
+                            <th>CURRENT</th>
+                            <th>BASELINE</th>
+                            <th>Δ SHIFT</th>
+                            <th>TREND</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sentiment-tbody">
+                        <tr><td colspan="6" style="color:#444;padding:8px;text-align:center;">AWAITING ANALYSIS...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel-footer">
+                <span>ANALYZED: <span class="metric" id="metric-analyzed">0</span> ITEMS</span>
+                <span>MODEL: <span class="metric">VADER-SIM</span></span>
+                <span>SHIFTS: <span class="metric" id="metric-shifts">0</span></span>
+            </div>
+        </div>
+
+        <!-- ╔═══════════════════════════════════════════════════════
+             ║ PANEL 3: ALERTS (ALERT MANAGER)
+             ╚═══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-alerts">
+            <div class="panel-header">
+                <span class="panel-title">// ACTIVE ALERTS</span>
+                <span class="panel-agent-label">[AGENT: ALERTMGR-01]</span>
+                <span class="panel-status-badge active" id="status-alerts">● MONITORING</span>
+            </div>
+            <div class="panel-body" id="alerts-body">
+                <!-- Alert counter row -->
+                <div class="alert-counters" id="alert-counters" style="margin-bottom:6px;">
+                    <span>CRITICAL: <b class="ac-crit" id="ac-critical">0</b></span>
+                    <span>HIGH: <b class="ac-high" id="ac-high">0</b></span>
+                    <span>MEDIUM: <b class="ac-med" id="ac-medium">0</b></span>
+                    <span style="margin-left:auto;color:#444;">COOLDOWN: 10m</span>
+                </div>
+                <div style="border-top:1px solid #222;margin-bottom:4px;"></div>
+                <div id="alerts-list">
+                    <div class="t-line dim"><span class="t-msg">MONITORING FOR ALERT CONDITIONS...</span></div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span>RULES: <span class="metric">4 ACTIVE</span></span>
+                <span>COOLDOWN: <span class="metric">10m</span></span>
+                <span style="margin-left:auto">TOTAL FIRED: <span class="metric" id="metric-alerts-fired">0</span></span>
+            </div>
+        </div>
+
+        <!-- ╔═══════════════════════════════════════════════════════
+             ║ PANEL 4: FORECASTS (FORECASTER)
+             ╚═══════════════════════════════════════════════════════ -->
+        <div class="panel" id="panel-forecaster">
+            <div class="panel-header">
+                <span class="panel-title">// FORECASTS &amp; PREDICTIONS</span>
+                <span class="panel-agent-label">[AGENT: FORECASTER-01]</span>
+                <span class="panel-status-badge idle" id="status-forecaster">○ IDLE</span>
+            </div>
+            <div class="panel-body" id="forecast-body" style="padding:0;">
+                <!-- Country selector + risk bar -->
+                <div style="padding:4px 6px; border-bottom:1px solid #222; display:flex; align-items:center; gap:8px; background:#0a0a0a; flex-shrink:0;">
+                    <span style="font-size:10px;color:#888;">COUNTRY:</span>
+                    <select id="forecast-country-select">
+                        <option value="">-- SELECT --</option>
+                        <option value="SY">SY — SYRIA</option>
+                        <option value="UA">UA — UKRAINE</option>
+                        <option value="YE">YE — YEMEN</option>
+                        <option value="SD">SD — SUDAN</option>
+                        <option value="ET">ET — ETHIOPIA</option>
+                        <option value="AF">AF — AFGHANISTAN</option>
+                        <option value="IQ">IQ — IRAQ</option>
+                        <option value="ML">ML — MALI</option>
+                        <option value="MM">MM — MYANMAR</option>
+                        <option value="SO">SO — SOMALIA</option>
+                    </select>
+                    <span id="forecast-risk-label" style="font-size:10px;color:#888;margin-left:auto;">RISK: <b id="forecast-risk-val" style="color:#0f0;">--</b></span>
+                </div>
+                <!-- Canvas chart -->
+                <div style="padding:4px 6px;">
+                    <canvas id="forecast-canvas" height="100"></canvas>
+                </div>
+                <!-- Model comparison -->
+                <div class="forecast-model-row">
+                    ARIMA: <span id="fc-arima">--</span>&nbsp;&nbsp;
+                    PROPHET: <span id="fc-prophet">--</span>&nbsp;&nbsp;
+                    LSTM: <span id="fc-lstm">--</span>&nbsp;&nbsp;
+                    ENSEMBLE: <span id="fc-ens">--</span>
+                </div>
+                <!-- Risk bar -->
+                <div class="risk-bar-wrap">
+                    <div class="risk-bar-label">RISK SCORE</div>
+                    <div class="risk-bar-outer">
+                        <div class="risk-bar-inner" id="risk-bar" style="width:0%;"></div>
+                    </div>
+                </div>
+                <!-- Forecast table -->
+                <div style="padding:2px 6px; overflow-x:auto;">
+                    <div id="forecast-grid" style="font-size:10px;color:#555;">AWAITING FORECAST DATA...</div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span>MODELS: <span class="metric">ARIMA+PROPHET+LSTM</span></span>
+                <span>HORIZON: <span class="metric">7 DAYS</span></span>
+                <span style="margin-left:auto">ENSEMBLE: <span class="metric">30/30/40</span></span>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+
+    <!-- ── Status Bar ───────────────────────────────────────────── -->
+    <div id="status-bar">
+        <span class="sb-seg ok" id="sb-gdelt">GDELT: OK</span>
+        <span class="sb-seg ok" id="sb-acled">ACLED: OK</span>
+        <span class="sb-seg ok" id="sb-reddit">REDDIT: OK</span>
+        <span class="sb-seg dim" id="sb-agents">AGENTS: 4/4 ACTIVE</span>
+        <span class="sb-seg warn" id="sb-alerts">ALERTS: 0</span>
+        <span class="sb-seg dim" id="sb-sse">SSE: CONNECTING...</span>
+        <span class="sb-seg clock" id="sb-clock">--:--:-- UTC</span>
+    </div>
+
+</div><!-- /main-window -->
+
+<!-- ──────────────────────── Scripts ────────────────────────────── -->
+<script src="static/js/charts.js"></script>
+<script src="static/js/terminal.js"></script>
+<script src="static/js/dashboard.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+database:
+  path: "riskpulse.db"
+
+# Set use_simulation: false and provide API keys to use real data
+simulation:
+  enabled: true
+  gdelt_interval: 20        # seconds between simulated GDELT batches
+  acled_interval: 60        # seconds
+  reddit_interval: 45       # seconds
+
+gdelt:
+  use_simulation: true
+  # url: "http://data.gdeltproject.org/gdeltv2/lastupdate.txt"
+
+acled:
+  use_simulation: true
+  # api_key: ""
+  # email: ""
+
+reddit:
+  use_simulation: true
+  # client_id: ""
+  # client_secret: ""
+  # user_agent: "RiskPulse/1.0"
+
+sentiment:
+  shift_alert_threshold: 0.25
+  analysis_interval: 30     # seconds
+
+forecasting:
+  high_risk_threshold: 0.65
+  forecast_interval: 120    # seconds (2 min for demo, would be 86400 in prod)
+  horizon_days: 7
+
+alerts:
+  cooldown_minutes: 10
+  max_history: 100
+
+countries:
+  - code: "SY"
+    name: "Syria"
+    region: "Middle East"
+  - code: "UA"
+    name: "Ukraine"
+    region: "Eastern Europe"
+  - code: "YE"
+    name: "Yemen"
+    region: "Middle East"
+  - code: "SD"
+    name: "Sudan"
+    region: "Africa"
+  - code: "ET"
+    name: "Ethiopia"
+    region: "Africa"
+  - code: "AF"
+    name: "Afghanistan"
+    region: "South Asia"
+  - code: "IQ"
+    name: "Iraq"
+    region: "Middle East"
+  - code: "ML"
+    name: "Mali"
+    region: "Africa"
+  - code: "MM"
+    name: "Myanmar"
+    region: "Southeast Asia"
+  - code: "SO"
+    name: "Somalia"
+    region: "Africa"
